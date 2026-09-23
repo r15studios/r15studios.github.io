@@ -1,0 +1,108 @@
+name: SEO pass
+on:
+  push:
+    paths: ['.github/workflows/seo-pass.yml']
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply SEO changes
+        shell: python
+        run: |
+          import re, json, datetime
+          from pathlib import Path
+          B='https://r15studios.github.io'
+          today=datetime.date.today().isoformat()
+          for f in ['enindex.html','dedex.htmlin','frdex.htmlin','nlndex.htmli','pt/7-index.html']:
+              p=Path(f)
+              if p.exists(): p.unlink()
+          def ld(o): return '<script type="application/ld+json">'+json.dumps(o,ensure_ascii=False,separators=(',',':'))+'</script>'
+          def sub1(pat,rep,s,flags=0):
+              s2,k=re.subn(pat,rep,s,count=1,flags=flags); assert k==1,pat; return s2
+          def lit(old,new,s):
+              assert s.count(old)==1,old[:60]; return s.replace(old,new)
+          ORG={"@type":"ProfessionalService","@id":B+"/#org","name":"R15 Studios","url":B+"/","email":"hola.r15studios@gmail.com",
+           "founder":{"@type":"Person","name":"Raúl Baeza","url":"https://raulbaeza15.github.io/"},"areaServed":{"@type":"Country","name":"España"},
+           "priceRange":"Desde 150 €","image":B+"/6-r15-social-preview-v4-studio.png","knowsAbout":["Diseño web","SEO","Automatización con IA","Redes sociales"]}
+          SVC={'es':["Webs que venden","SEO: que te encuentren","Automatización con IA","Contenido para redes"],
+               'en':["Websites that sell","SEO: get found","AI automation","Social media content"]}
+          SEO_ICON='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#c6f24e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6M11 8v6"/></svg>'
+          CARD={'es':'<h3>SEO: que te encuentren</h3>\n        <p>Preparamos tu web y tu ficha de Google Maps para que aparezcas cuando alguien busca lo que haces en tu zona. Títulos, textos y datos bien puestos, sin trucos ni promesas raras.</p>',
+                'en':'<h3>SEO: get found</h3>\n        <p>We set up your website and your Google Maps listing so you show up when people nearby search for what you do. Clear titles, copy and data, with no tricks and no wild promises.</p>'}
+          HOME={'es':dict(f='index.html',title='Diseño web y SEO para negocios locales | R15 Studios',
+             desc='Webs modernas para comercios y autónomos, SEO para que te encuentren en Google, automatización con IA y redes. Sin tecnicismos y sin complicaciones.',
+             three='Tres cosas, bien hechas.',four='Cuatro cosas, bien hechas.',foot='<div>Webs · IA · Redes</div>',foot2='<div>Webs · SEO · IA · Redes</div>',card2='<div class="num">02</div>\n        <h3>Automatización con IA</h3>'),
+           'en':dict(f='en/index.html',title='Web design and SEO for local businesses | R15 Studios',
+             desc='Modern websites for shops and freelancers, SEO so people find you on Google, AI automation and social media. No jargon, no hassle.',
+             three='Three things, done well.',four='Four things, done well.',foot=None,foot2=None,card2=None)}
+          for lang,h in HOME.items():
+              p=Path(h['f']); s=p.read_text()
+              s=sub1(r'<title>[^<]*</title>','<title>%s</title>'%h['title'],s)
+              s=sub1(r'<meta name="description" content="[^"]*">','<meta name="description" content="%s">'%h['desc'],s)
+              s=lit(h['three'],h['four'],s)
+              s=lit('.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}','.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}',s)
+              # insert SEO card as 02 after card 01, renumber 02->03, 03->04
+              cards=re.search(r'<div class="cards">(.*?)\n    </div>\n  </div>\n</section>',s,re.S)
+              blk=cards.group(1)
+              parts=blk.split('\n      <div class="card">')
+              assert len(parts)==4, len(parts)
+              blk2=parts[0]+'\n      <div class="card">'+parts[1]
+              blk2+='\n      <div class="card">\n        <div class="icon">'+SEO_ICON+'</div>\n        <div class="num">02</div>\n        '+CARD[lang]+'\n      </div>'
+              blk2+='\n      <div class="card">'+parts[2].replace('<div class="num">02</div>','<div class="num">03</div>')
+              blk2+='\n      <div class="card">'+parts[3].replace('<div class="num">03</div>','<div class="num">04</div>')
+              s=s[:cards.start(1)]+blk2+s[cards.end(1):]
+              s=re.sub(r'(<footer>\s*<div class="wrap">\s*<div>[^<]*</div>\s*<div>)Webs · IA · Redes(</div>)',r'\1Webs · SEO · IA · Redes\2',s)
+              s=re.sub(r'(<footer>\s*<div class="wrap">\s*<div>[^<]*</div>\s*<div>)Websites · AI · Social media(</div>)',r'\1Websites · SEO · AI · Social media\2',s)
+              Path(h['f']).write_text(s)
+          # semantic <main> + JSON-LD on all six homes
+          for f,lang in [('index.html','es'),('en/index.html','en'),('pt/index.html','pt'),('de/index.html','de'),('fr/index.html','fr'),('nl/index.html','nl')]:
+              p=Path(f); s=p.read_text()
+              if '<main' not in s:
+                  s=lit('<header class="hero">','<main>\n<header class="hero">',s)
+                  s=sub1(r'\n<footer>','\n</main>\n\n<footer>',s)
+              org=dict(ORG)
+              if lang in SVC:
+                  org["hasOfferCatalog"]={"@type":"OfferCatalog","name":"Servicios" if lang=='es' else "Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":n}} for n in SVC[lang]]}
+              g={"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":B+"/#site","name":"R15 Studios","url":B+"/","inLanguage":lang,"publisher":{"@id":B+"/#org"}},org]}
+              s=s.replace('</head>',ld(g)+'\n</head>',1); p.write_text(s)
+          # services pages
+          SEC={'es':('<p class="label">Ejemplos publicados</p>','<section id="seo"><div class="wrap grid"><div><p class="label">SEO</p><h2>Que te encuentren en Google</h2></div><div class="list"><div class="item"><b>Lo técnico, bien hecho</b><p>Títulos y descripciones en cada página, datos estructurados, sitemap, robots.txt, idiomas bien enlazados y páginas rápidas en el móvil.</p></div><div class="item"><b>Las palabras que usa tu cliente</b><p>Miramos cómo busca la gente lo que haces en tu zona y ajustamos los textos para responder a eso, sin rellenarlos de palabras clave.</p></div><div class="item"><b>Search Console y Google Maps</b><p>Dejamos la web dada de alta en Google Search Console a tu nombre y revisamos tu ficha de Google Maps para que los datos coincidan con la web.</p></div><div class="item"><b>Sin promesas de primer puesto</b><p>Nadie puede garantizar el número uno en Google. Lo que sí hacemos es dejar la web preparada y explicarte qué mide cada cosa.</p></div></div></div></section>',
+             'Webs para pequeños negocios y SEO local: responsive, idiomas útiles, vista previa al compartir, contacto directo y publicación comprobada.','servicios/index.html','<span>Webs · IA · Redes</span>','<span>Webs · SEO · IA · Redes</span>'),
+           'en':('<p class="label">Published examples</p>','<section id="seo"><div class="wrap grid"><div><p class="label">SEO</p><h2>Get found on Google</h2></div><div class="list"><div class="item"><b>The technical side, done right</b><p>Titles and descriptions on every page, structured data, sitemap, robots.txt, properly linked languages and fast pages on mobile.</p></div><div class="item"><b>The words your customers use</b><p>We look at how people nearby search for what you do and adjust the copy to answer that, without stuffing it with keywords.</p></div><div class="item"><b>Search Console and Google Maps</b><p>We register the site in Google Search Console under your name and check your Google Maps listing so the details match the website.</p></div><div class="item"><b>No promises of first place</b><p>Nobody can guarantee the top spot on Google. What we do is get the site ready and explain what each number means.</p></div></div></div></section>',
+             'Websites and local SEO for small businesses: responsive, useful languages, good link previews, direct contact and a checked launch.','en/services/index.html','<span>Websites · AI · Social media</span>','<span>Websites · SEO · AI · Social media</span>')}
+          for lang,(anchor,sec,desc,f,fo,fn) in SEC.items():
+              p=Path(f); s=p.read_text()
+              i=s.index(anchor); j=s.rindex('<section',0,i); s=s[:j]+sec+'\n'+s[j:]
+              s=sub1(r'<meta name="description" content="[^"]*">','<meta name="description" content="%s">'%desc,s)
+              s=lit(fo,fn,s)
+              if 'rel="icon"' not in s:
+                  icon=re.search(r'<link rel="icon"[^>]*>',Path('index.html').read_text()).group(0)
+                  s=s.replace('</head>',icon+'\n</head>',1)
+              url=B+('/servicios/' if lang=='es' else '/en/services/')
+              g={"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":re.search(r'<title>([^<]*)',s).group(1),"url":url,"inLanguage":lang,"isPartOf":{"@id":B+"/#site"},"about":{"@id":B+"/#org"}},
+                {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"R15 Studios","item":B+('/' if lang=='es' else '/en/')},{"@type":"ListItem","position":2,"name":"Servicios" if lang=='es' else "Services","item":url}]}]}
+              s=s.replace('</head>',ld(g)+'\n</head>',1); p.write_text(s)
+          # case pages: JSON-LD
+          cases=[('casos/'+c,'es') for c in ['ancora','carpinteria','estetica-elena','portfolio']]+[('en/cases/'+c,'en') for c in ['ancora','carpentry','elena-beauty','portfolio']]
+          for d,lang in cases:
+              p=Path(d)/'index.html'; s=p.read_text(); url=B+'/'+d+'/'
+              t=re.search(r'<title>([^<]*)',s).group(1).replace(' | R15 Studios','')
+              m=re.search(r'<meta (?:name="description" content="([^"]*)"|content="([^"]*)" name="description")',s)
+              g={"@context":"https://schema.org","@graph":[{"@type":"Article","headline":t,"url":url,"inLanguage":lang,"description":(m.group(1) or m.group(2)) if m else "","author":{"@id":B+"/#org"},"publisher":{"@id":B+"/#org"}},
+                {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"R15 Studios","item":B+('/' if lang=='es' else '/en/')},{"@type":"ListItem","position":2,"name":t,"item":url}]}]}
+              s=s.replace('</head>',ld(g)+'\n</head>',1); p.write_text(s)
+          urls=['/','/en/','/pt/','/de/','/fr/','/nl/','/servicios/','/en/services/']+['/'+d+'/' for d,_ in cases]
+          Path('sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('  <url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n'%(B,u,today) for u in urls)+'</urlset>\n')
+          Path('robots.txt').write_text('User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n'%B)
+          print('ok',len(urls))
+          Path('.github/workflows/seo-pass.yml').unlink()
+      - name: Commit
+        run: |
+          git config user.name 'RaulBaeza15'
+          git config user.email '177480579+RaulBaeza15@users.noreply.github.com'
+          git add -A
+          git commit -m 'SEO: sitemap, robots, JSON-LD, SEO service, remove stray duplicate pages'
+          git push
