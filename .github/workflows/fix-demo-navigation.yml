@@ -1,0 +1,28 @@
+name: Fix demo home logos
+on:
+  push:
+    paths:
+      - .github/workflows/fix-demo-navigation.yml
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link each demo header brand to its own home
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('demo')
+          p=root/'cervi-taller-artistico/index.html';s=p.read_text();old='<a class="brand" href="#inicio"';assert s.count(old)==1;p.write_text(s.replace(old,'<a class="brand" href="/demo/cervi-taller-artistico/"',1))
+          p=root/'nail-toledo-anna/index.html';s=p.read_text();old='<div class="brand">Anna <span>·</span> Nail Toledo</div>';assert s.count(old)==1;s=s.replace(old,'<a class="brand" href="/demo/nail-toledo-anna/">Anna <span>·</span> Nail Toledo</a>',1);s=s.replace('.brand span{color:var(--berry)}','.brand span{color:var(--berry)}\nheader .brand{color:inherit;text-decoration:none}\nheader .brand:focus-visible{outline:2px solid var(--berry);outline-offset:4px}',1);p.write_text(s)
+          p=root/'new-street-barber/index.html';s=p.read_text();old='<div class="brand">\n    <img class="logo"';assert s.count(old)==1;s=s.replace(old,'<a class="brand" href="/demo/new-street-barber/" aria-label="New Street Barber, inicio">\n    <img class="logo"',1);old='<div class="name">NEW STREET BARBER<small>TOLEDO</small></div>\n  </div>';assert s.count(old)==1;s=s.replace(old,'<div class="name">NEW STREET BARBER<small>TOLEDO</small></div>\n  </a>',1);s=s.replace('header .brand { display:flex; align-items:center; gap:12px; }','header .brand { display:flex; align-items:center; gap:12px; color:inherit; text-decoration:none; }\n  header .brand:focus-visible { outline:2px solid #d4af37; outline-offset:4px; }',1);p.write_text(s)
+          Path('.github/workflows/fix-demo-navigation.yml').unlink()
+          PY
+          git config user.name 'Instinct Agent'
+          git config user.email 'agent@instinct.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'Link each demo logo to its own home'
+          git push
