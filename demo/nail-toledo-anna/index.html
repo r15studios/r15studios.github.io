@@ -14,6 +14,8 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,syste
 header{padding:22px 0;display:flex;justify-content:space-between;align-items:center}
 .brand{font-family:"Playfair Display",serif;font-weight:900;font-size:26px;letter-spacing:.5px}
 .brand span{color:var(--berry)}
+header .brand{color:inherit;text-decoration:none}
+header .brand:focus-visible{outline:2px solid var(--berry);outline-offset:4px}
 .btn{display:inline-block;background:var(--berry);color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:14px 30px;border-radius:999px;transition:transform .15s ease}
 .btn:hover{transform:translateY(-2px)}
 .btn.ghost{background:transparent;color:var(--ink);border:2px solid #e5d4cf}
@@ -51,7 +53,7 @@ footer .r15{margin-top:8px;font-size:13px}
 <body>
 <div class="wrap">
 <header>
-<div class="brand">Anna <span>·</span> Nail Toledo</div>
+<a class="brand" href="/demo/nail-toledo-anna/">Anna <span>·</span> Nail Toledo</a>
 <a class="btn" href="https://nailtoledoanna.booksy.com/a">Reservar cita</a>
 </header>
 
