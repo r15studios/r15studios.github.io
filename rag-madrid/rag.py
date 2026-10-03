@@ -20,6 +20,10 @@ TEMAS={ # tema pedido -> palabras que deben aparecer en categoría/título/lugar
  'mercadillo':r'mercad|rastro|feria',
  'charla':r'charla|conferencia|coloquio|presentaci',
 }
+def condiciones_usuario(notas):
+ # quita notas internas de verificación (páginas del PDF, inspección visual) que no ayudan a quien lee
+ frases=[f.strip() for f in re.split(r'(?<=[.;])\s+',notas) if f.strip()]
+ return ' '.join(f for f in frases if not re.search(r'PDF|inspeccionad|^P[áa]gina \d|p[áa]ginas? \d|Dato leído de la agenda',f))
 AVISO_RESERVA='⚠ Reserva obligatoria o aforo limitado: puede estar completo. Confirma plaza con el organizador antes de ir.'
 def model_path():
  if os.environ.get('RAG_MODEL_PATH'):
@@ -121,9 +125,13 @@ class RAG:
     if r['disponibilidad']=='inscripciones_cerradas':fit='no_encaja';gaps.append('inscripciones cerradas')
     model_fit=raw.get(r['id'],{}).get('encaje_publicado')
     res=r.get('reserva')=='obligatoria'
-    results.append({k:r[k] for k in ['id','titulo','hora_inicio','hora_fin','precio_texto','lugar','fuente','notas','verificado_en']} | {'categoria':r['categoria'],'encaje_publicado_control':fit,'encaje_publicado_modelo':model_fit,'modelo_discrepa':fit!=model_fit,'gaps':gaps,'analysis':state['analysis'].get(r['id']),'disponibilidad':'reserva_obligatoria_plazas_sin_comprobar' if res else 'no_verificada','requiere_reserva':res,'aviso_reserva':AVISO_RESERVA if res else None})
+    results.append({k:r[k] for k in ['id','titulo','hora_inicio','hora_fin','precio_texto','lugar','fuente','notas','verificado_en']} | {'categoria':r['categoria'],'encaje_publicado_control':fit,'encaje_publicado_modelo':model_fit,'modelo_discrepa':fit!=model_fit,'gaps':gaps,'analysis':state['analysis'].get(r['id']),'disponibilidad':'reserva_obligatoria_plazas_sin_comprobar' if res else 'no_verificada','requiere_reserva':res,'aviso_reserva':AVISO_RESERVA if res else None,'aviso_publico':r.get('aviso_publico'),'condiciones_usuario':condiciones_usuario(r['notas'])})
     say('VALIDADOR: %s -> modelo=%s, control=%s%s'%(r['titulo'][:42],model_fit,fit,' | RESERVA' if res else ''))
    state['results']=results
+   nres=sum(1 for x in results if x['requiere_reserva']);nsin=len(results)-nres
+   resumen='RESUMEN: %d planes. %d sin reserva indicada y %d con reserva obligatoria o aforo limitado (confirma plaza antes de ir).'%(len(results),nsin,nres)
+   if nsin==0:resumen+=' Ninguno es de acceso directo: si no consigues plaza, este sistema no tiene alternativa sin reserva para esa fecha y tema.'
+   state['resumen']=resumen;say(resumen)
   else:raise ValueError(stage)
   state['log']=state.get('log',[])+self.log;state['scope']='Tres roles Qwen2.5-1.5B, recuperación por fecha/recurrencia, sin embeddings. Prueba sobre una base cerrada, no búsqueda web ni revalidación en vivo. Condiciones originales conservadas.'
   path.write_text(json.dumps(state,ensure_ascii=False,indent=2));say('  [%s listo, %ss]'%(stage,self.log[-1]['seconds'] if self.log else 0))
