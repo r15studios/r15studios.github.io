@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head><base href="/manos-acordes/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Manos Acordes</title>
+<meta name="description" content="Play with your fingers: 14 instruments and 4 modes, with chords and one note per finger.">
+<meta name="theme-color" content="#0e0e14">
+<meta property="og:title" content="Manos Acordes">
+<meta property="og:description" content="Play with your fingers: 14 instruments and 4 modes, with chords and one note per finger.">
+<meta property="og:image" content="https://r15studios.github.io/manos-acordes/social-en.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#0e0e14;color:#f3f1ea;font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 8px) 14px 8px;z-index:3}
+header a.logo{color:#f3f1ea;text-decoration:none;font-weight:700;letter-spacing:.5px}
+header a.logo span{color:#ffb347}
+select{background:#1b1b27;color:#f3f1ea;border:1px solid #34344a;border-radius:8px;padding:6px 8px;font-size:14px}
+#stage{position:relative;flex:1;min-height:0}
+video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+video{transform:scaleX(-1)}canvas{transform:scaleX(-1)}
+#big{position:absolute;left:0;right:0;top:12%;text-align:center;pointer-events:none;z-index:2}
+#chord{font-size:min(30vw,170px);font-weight:800;line-height:1;text-shadow:0 4px 24px #000a}
+#fingers{font-size:18px;opacity:.85;text-shadow:0 2px 8px #000}
+#start{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0e0e14ee;padding:24px;text-align:center}
+#start h1{margin:0;font-size:34px}#start p{max-width:420px;opacity:.85;margin:0;line-height:1.4}
+button{background:#ffb347;color:#1a1204;border:0;border-radius:14px;padding:16px 28px;font-size:18px;font-weight:700}
+#err{color:#ff8a80;min-height:1.2em}
+#bar{display:flex;gap:6px;padding:10px 10px calc(env(safe-area-inset-bottom) + 10px);background:#0e0e14;z-index:3}
+.k{flex:1;text-align:center;border:1px solid #34344a;border-radius:12px;padding:8px 2px;transition:.08s;background:#171722}
+.k b{display:block;font-size:20px}.k small{opacity:.7;font-size:12px}
+.k.on{background:#ffb347;color:#1a1204;border-color:#ffb347;transform:translateY(-4px)}
+#ctl{display:flex;gap:6px;padding:0 10px 8px;z-index:3}#ctl select{flex:1;min-width:0}#help{background:#1b1b27;color:#f3f1ea;border:1px solid #34344a;border-radius:8px;padding:6px 12px;font-size:16px;font-weight:700}
+#sheet{position:absolute;inset:0;z-index:4;background:#0e0e14f2;overflow:auto;padding:14px;display:none}#sheet.open{display:block}#sheet h2{margin:0 0 6px;font-size:18px;color:#ffb347}#sheet p{margin:0 0 10px;font-size:13px;opacity:.85}
+.rows{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 14px;margin-bottom:12px}.r{display:flex;align-items:center;gap:8px;font-size:14px;padding:3px 6px;border-radius:8px}.r.on{background:#ffb347;color:#1a1204}.dots{font-size:14px;letter-spacing:1px;font-family:monospace}.hd{display:grid;grid-template-columns:repeat(5,1fr);font-size:10px;opacity:.7;text-align:center;margin:0 0 6px}
+#sheet .close{position:sticky;bottom:0;width:100%;margin-top:6px}
+#pat{font-family:monospace;font-size:22px;letter-spacing:4px;margin-top:4px}
+footer{position:absolute;right:10px;bottom:calc(env(safe-area-inset-bottom) + 84px);z-index:6;font-size:11px;opacity:1}
+footer a{color:inherit}
+</style>
+<meta property="og:url" content="https://r15studios.github.io/manos-acordes/en/"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:image:alt" content="Real app interface"><meta name="twitter:title" content="Manos Acordes"><meta name="twitter:description" content="Play with your fingers: 14 instruments and 4 modes, with chords and one note per finger."><meta name="twitter:image" content="https://r15studios.github.io/manos-acordes/social-en.png"><link rel="canonical" href="https://r15studios.github.io/manos-acordes/en/"><link rel="alternate" hreflang="es" href="https://r15studios.github.io/manos-acordes/"><link rel="alternate" hreflang="en" href="https://r15studios.github.io/manos-acordes/en/"></head>
+<body>
+<div id="app">
+ <header><a class="logo" href="./" aria-label="Home">MANOS<span>·</span>ACORDES</a>
+  <select id="lang" aria-label="Language"><option value="es">ES</option><option value="en">EN</option><option value="fr">FR</option><option value="de">DE</option><option value="it">IT</option><option value="pt">PT</option><option value="tr">TR</option></select></header>
+ <div id="ctl"><select id="inst" aria-label="Instrument"></select><select id="mode" aria-label="Mode"></select><button id="help" aria-label="Cheat sheet">?</button></div>
+ <div id="stage">
+  <video id="v" playsinline muted></video><canvas id="c"></canvas>
+  <div id="big"><div id="chord">–</div><div id="fingers"></div><div id="pat"></div></div>
+  <div id="sheet"></div>
+  <footer><span data-i="credit"></span> <a href="https://r15studios.github.io/" target="_blank" rel="noopener">R15 Studios</a></footer>
+  <div id="start"><h1>Manos Acordes</h1><p data-i="intro"></p><button id="go" data-i="start"></button><div id="err"></div></div>
+ </div>
+ <div id="bar"></div>
+</div>
+<script>localStorage.lang="en";</script><script type="module" src="app.js"></script>
+</body></html>
