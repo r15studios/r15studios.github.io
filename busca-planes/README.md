@@ -32,7 +32,3 @@ Sin claves de API ni cuentas. Tres vías:
 Solo se copian campos de la fuente. Nada se inventa. `--mezclar` conserva los registros `MAD-*` leídos a mano.
 
 **Captchas y bloqueos.** Si un buscador o una web pide resolver un captcha o responde con bloqueo (403, 429), el programa no lo evita. Se detiene y avisa; con terminal interactivo espera a que lo resuelvas en tu navegador y pulses Intro para reintentar. Sin terminal sale con código 3.
-
-## Límites
-
-"Gratis" es lo que dice la fuente. No se comprueban plazas, cancelaciones ni precios reales. Un modelo de 1,5B puede elegir peor que uno grande; por eso el código fija cobertura, precio y fecha.
