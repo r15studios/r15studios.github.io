@@ -3,7 +3,7 @@ Para cada resultado comprueba: existe en la base, coincide con la fecha, es grat
 y lleva aviso de reserva si la base marca reserva obligatoria."""
 import json,sys
 from pathlib import Path
-import rag
+import agentes
 from consultar_base import consultar
 CASOS=[
  ('c1','¿Qué puedo hacer en Madrid el domingo 4 de octubre de 2026 sin gastar? Quiero un taller y algo de naturaleza.','2026-10-04',['taller','naturaleza']),
@@ -14,7 +14,7 @@ CASOS=[
  ('c6','¿Qué charla o cine gratis hay en Madrid el martes 13 de octubre de 2026?','2026-10-13',['charla','cine']),
 ]
 if __name__=='__main__':
- m=rag.RAG();informe=[]
+ m=agentes.Agentes();informe=[]
  base={r['id']:r for r in json.load(open('base.json'))['registros']}
  for cid,q,f,temas in CASOS:
   Path('prueba_'+cid+'.json').write_text(json.dumps({'question':q,'date':f,'free_only':True,'temas':temas,'publico':'general','log':[]},ensure_ascii=False))
@@ -25,8 +25,8 @@ if __name__=='__main__':
   chk['todos_existen_en_base']=all(r['id'] in base for r in res)
   chk['todos_en_la_fecha']=all(r['id'] in vivos for r in res)
   chk['todos_gratis']=all(base[r['id']]['precio_eur']==0 for r in res)
-  chk['cada_tema_cubierto']={t:any(rag.tiene_tema(base[r['id']],t) for r in res) for t in temas}
-  chk['tema_existia_en_base']={t:any(rag.tiene_tema(r,t) for r in consultar(f,'base.json') if r['precio_eur']==0 and r.get('publico')!='infantil / familiar') for t in temas}
+  chk['cada_tema_cubierto']={t:any(agentes.tiene_tema(base[r['id']],t) for r in res) for t in temas}
+  chk['tema_existia_en_base']={t:any(agentes.tiene_tema(r,t) for r in consultar(f,'base.json') if r['precio_eur']==0 and r.get('publico')!='infantil / familiar') for t in temas}
   chk['aviso_reserva_correcto']=all(bool(r['aviso_reserva'])==(base[r['id']].get('reserva')=='obligatoria') for r in res)
   chk['sin_titulos_repetidos']=len({r['titulo'] for r in res})==len(res)
   chk['ids_inventados']=[r['id'] for r in res if r['id'] not in base]
