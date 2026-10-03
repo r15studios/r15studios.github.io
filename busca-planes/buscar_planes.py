@@ -1,5 +1,5 @@
 """Buscador de planes: busca planes gratuitos de una ciudad y un rango de fechas y deja el listado
-en el mismo formato que lee rag.py (base.json). Sin claves de API ni cuentas.
+en el mismo formato que lee agentes.py (base.json). Sin claves de API ni cuentas.
 
 Tres vías, de más a menos fiable:
   1. Datos abiertos oficiales, si existe adaptador para la ciudad (Madrid y Barcelona).
@@ -43,7 +43,7 @@ def descargar(url=URL,intentos=3,espera=3):
     raise SystemExit('No se pudo descargar la agenda abierta tras %d intentos: %s'%(intentos,ultimo))
 
 def convertir(graph,desde,hasta,existentes=(),hoy=None):
-    """Aplica los mismos filtros que build_base.py y devuelve registros AGM-* en el formato de rag.py."""
+    """Aplica los mismos filtros que build_base.py y devuelve registros AGM-* en el formato de agentes.py."""
     hoy=hoy or D.datetime.now().astimezone().isoformat(timespec='seconds')
     exist={norm(t) for t in existentes}
     out=[]
@@ -253,7 +253,7 @@ def buscar_web(ciudad,desde,hasta,urls=None,max_urls=10,hoy=None):
 
 # ---------- principal ----------
 def main(argv=None):
-    p=argparse.ArgumentParser(description='Busca planes gratuitos de una ciudad y los deja en el formato de rag.py')
+    p=argparse.ArgumentParser(description='Busca planes gratuitos de una ciudad y los deja en el formato de agentes.py')
     p.add_argument('--ciudad',default='Madrid');p.add_argument('--desde',required=True);p.add_argument('--hasta',required=True);p.add_argument('--salida',default='base.json')
     p.add_argument('--web',action='store_true',help='usar también búsqueda web (o solo ella si la ciudad no tiene datos abiertos)')
     p.add_argument('--urls',nargs='*',help='páginas concretas a leer (datos estructurados Event)')
