@@ -55,6 +55,8 @@ for e in g:
      'notas':('Reserva o aforo limitado según el texto oficial. ' if reserva=='obligatoria' else '')+'Dato leído de la agenda oficial el 2026-10-03; no se comprobó plaza ni cancelación.',
      'evidencia':re.sub(r'\s+',' ',txt).strip()[:300],'verificado_en':'2026-10-03T12:13:00+02:00','origen':'datos.madrid.es/egob/catalogo/206974-0','fechas_sesiones':None,
      'reserva':reserva,'publico':'infantil / familiar' if infantil else 'general'})
+for r in regs:
+    if r['id']=='MAD-025':r['aviso_publico']='Aparece en la "programación familiar" de la fuente (con sesión de pintacaras): pensado para público familiar/infantil.'
 base['registros']=regs;base['schema_version']=2;base['generado_en']='2026-10-03T12:20:00+02:00'
 base['alcance']='Madrid capital, 3-25 oct 2026. 62 registros v1 (lectura de fuentes) + agenda oficial del Ayuntamiento (datos abiertos). Gratis según la fuente; reserva y plazas no comprobadas.'
 base['notas_schema']+=' v2: reserva = obligatoria si el texto oficial pide reserva/inscripción/aforo; publico = infantil/familiar si la fuente lo indica; dias_semana/fechas_excluidas filtran rangos.'
