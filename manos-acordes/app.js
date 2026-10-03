@@ -44,7 +44,7 @@ function applyLang(){const t=T[lang];document.documentElement.lang=lang;$('#lang
  $('#help').setAttribute('aria-label',t.chul);buildBar();sheet()}
 function buildBar(){const n=mode===0?5:mode===1?7:0;const t=T[lang];
  $('#bar').innerHTML=mode===0?CHORDS.slice(1).map((c,i)=>`<div class="k" id="k${i+1}"><b>${CHN[i+1]}</b><small>${i+1}</small></div>`).join(''):mode===1?[1,2,3,4,5,6,7].map(d=>`<div class="k" id="k${d}"><b>${nm(SCALE[d-1],0).replace(/\d/,'')}</b><small>${d}</small></div>`).join(''):`<div style="flex:1;text-align:center;opacity:.7;padding:10px;font-size:13px">${t.m2.split('.')[0]}.</div>`}
-$('#lang').onchange=e=>{lang=e.target.value;applyLang()};
+$('#lang').onchange=e=>{lang=e.target.value;$('#err').textContent='';applyLang()};
 $('#inst').onchange=e=>{inst=e.target.value;localStorage.inst=inst;release();cur=null};
 $('#mode').onchange=e=>{mode=+e.target.value;localStorage.mode=mode;release();cur=null;lastKey='';applyLang()};
 $('#help').onclick=()=>$('#sheet').classList.toggle('open');
