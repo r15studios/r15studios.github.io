@@ -47,7 +47,7 @@ const PL={guitar:{gain:.7,damp:.996,dur:3,bright:2,cut:3800,rel:.35},harp:{gain:
 const TRIM={bass:1.57,bells:1,cello:1.8,drums:1.25,flute:.9,guitar:1.25,harp:1.6,lead:2.1,marimba:1,organ:1.25,pad:1.5,piano:.8,trumpet:2,violin:2.5};
 function trimmed(ctx,dest,id){const g=ctx.createGain();g.gain.value=TRIM[id]||1;g.connect(dest);return g}
 export function note(ctx,dest,id,f,t,v=1){dest=trimmed(ctx,dest,id);
- f=f*Math.pow(2,META[id].oct||0);
+ f=f*Math.pow(2,META[id].oct||0);while(f<82)f*=2; // el altavoz del móvil no reproduce por debajo de ~80 Hz
  if(id==='piano')return piano(ctx,dest,f,t,v);
  if(PL[id])return plucked(ctx,dest,f,t,v,PL[id]);
  if(id==='marimba')return partials(ctx,dest,f,t,v,[1,3.93,9.9],[1,.3,.1],[.45,.1,.03],.5,.15);
@@ -76,3 +76,10 @@ export function drum(ctx,dest,idx,t,v=1){dest=trimmed(ctx,dest,'drums');const k=
 export const SCALE=[0,2,4,5,7,9,11,12,14,16];
 export const CHORDS=[null,[261.63,329.63,392.0],[196.0,246.94,293.66],[220.0,261.63,329.63],[174.61,220.0,261.63],[164.81,246.94,329.63]];
 export const noteFreq=(deg,oct)=>261.63*Math.pow(2,(SCALE[deg-1]+12*oct)/12);
+
+// bus de salida: reverb suave + compresor (evita saturar con 10 voces)
+export function makeBus(ctx,dest){const comp=ctx.createDynamicsCompressor();comp.threshold.value=-16;comp.knee.value=12;comp.ratio.value=4;comp.attack.value=.004;comp.release.value=.2;comp.connect(dest);
+ const input=ctx.createGain();input.gain.value=1;const dry=ctx.createGain();dry.gain.value=.9;input.connect(dry);dry.connect(comp);
+ const len=Math.floor(ctx.sampleRate*1.5),ir=ctx.createBuffer(1,len,ctx.sampleRate),d=ir.getChannelData(0);let s=4242,p=0;
+ for(let i=0;i<len;i++){s=(s*1664525+1013904223)>>>0;const n=s/2147483648-1;p=p*.55+n*.45;d[i]=p*Math.pow(1-i/len,3.2)}
+ const cv=ctx.createConvolver();cv.buffer=ir;const wet=ctx.createGain();wet.gain.value=.22;input.connect(cv);cv.connect(wet);wet.connect(comp);return input}
