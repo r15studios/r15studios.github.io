@@ -1,0 +1,27 @@
+name: Build Manos social images
+on:
+  push:
+    paths:
+      - 'manos-acordes/social-images.json'
+      - '.github/workflows/decode-manos-social.yml'
+permissions:
+  contents: write
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode original preview images
+        run: |
+          python3 - <<'PY_DECODE'
+          import json, base64, pathlib
+          root=pathlib.Path('manos-acordes')
+          data=json.loads((root/'social-images.json').read_text())
+          for lang in ['es','en']:
+              (root/('social-'+lang+'.png')).write_bytes(base64.b64decode(data[lang],validate=True))
+          PY_DECODE
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manos-acordes/social-es.png manos-acordes/social-en.png
+          git diff --cached --quiet || git commit -m "Add Manos Acordes social images"
+          git push
