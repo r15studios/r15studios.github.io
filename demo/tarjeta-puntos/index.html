@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Tarjeta de puntos (demo) · R15 Studios</title>
+<style>
+  :root { --bg:#0a0a0a; --card:#141614; --lime:#c6f24e; --lime-dim:#a8d43a; --muted:#a3a8a0; --text:#f2f2f0; --line:#26282a; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Helvetica Neue', Arial, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; gap:12px; padding:20px 22px; }
+  header img { width:40px; height:40px; border-radius:9px; }
+  header .name { font-weight:800; letter-spacing:2px; font-size:15px; }
+  header .name small { display:block; font-weight:400; letter-spacing:3px; font-size:10px; color:var(--lime); }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; padding:28px 22px 48px; text-align:center; }
+  h1 { font-size:26px; letter-spacing:.5px; margin-bottom:10px; }
+  h1 span { color:var(--lime); }
+  p.lead { color:var(--muted); font-size:15px; line-height:1.55; max-width:520px; margin-bottom:30px; }
+  .pass { width:min(340px,100%); background:#000; border:1px solid var(--line); border-radius:18px; padding:18px 20px; text-align:left; box-shadow:0 18px 50px rgba(198,242,78,.08); margin-bottom:30px; }
+  .pass .top { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .pass .brand { display:flex; align-items:center; gap:10px; }
+  .pass .brand img { width:28px; height:28px; border-radius:7px; }
+  .pass .brand b { font-size:13px; letter-spacing:1.5px; }
+  .pass .pts { text-align:right; }
+  .pass .pts small { display:block; color:var(--muted); font-size:9px; letter-spacing:2px; }
+  .pass .pts b { color:var(--lime); font-size:22px; }
+  .pass .socio { margin-bottom:14px; }
+  .pass .socio small { display:block; color:var(--muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+  .pass .socio b { font-size:18px; }
+  .pass .row { display:flex; gap:26px; margin-bottom:16px; }
+  .pass .row div small { display:block; color:var(--muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+  .pass .row div b { font-size:14px; }
+  .pass .qr { height:54px; border-radius:8px; background:repeating-linear-gradient(90deg,var(--lime) 0 3px, transparent 3px 7px, var(--lime-dim) 7px 9px, transparent 9px 15px); opacity:.85; }
+  .pass .alt { color:var(--muted); font-size:10px; letter-spacing:1px; text-align:center; margin-top:6px; }
+  a.add { display:inline-flex; align-items:center; gap:10px; background:var(--lime); color:#0a0a0a; font-weight:800; font-size:16px; padding:15px 30px; border-radius:12px; text-decoration:none; }
+  a.add:active { transform:scale(.98); }
+  p.howto { color:var(--muted); font-size:13px; line-height:1.6; max-width:440px; margin-top:22px; }
+  p.howto b { color:var(--text); }
+  .note { margin-top:26px; font-size:12px; color:var(--muted); border-top:1px solid var(--line); padding-top:16px; max-width:440px; line-height:1.6; }
+  footer { padding:18px; text-align:center; }
+  footer a { color:var(--lime-dim); font-size:12px; text-decoration:none; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<header>
+  <img src="/favicon.svg" alt="R15 Studios">
+  <div class="name">R15 STUDIOS<small>DEMO WALLET</small></div>
+</header>
+<main>
+  <h1>Tarjeta de puntos <span>R15 Studios</span></h1>
+  <p class="lead">Así se vería una tarjeta de fidelización en Apple Wallet. Esta es una tarjeta de prueba: los puntos son ficticios, sin valor ni canje.</p>
+
+  <div class="pass" aria-hidden="true">
+    <div class="top">
+      <div class="brand"><img src="/favicon.svg" alt=""><b>R15 STUDIOS</b></div>
+      <div class="pts"><small>PUNTOS</small><b>1.250</b></div>
+    </div>
+    <div class="socio"><small>Socio</small><b>Demo R15</b></div>
+    <div class="row">
+      <div><small>Nivel</small><b>Lima</b></div>
+      <div><small>Miembro desde</small><b>Nov 2026</b></div>
+      <div><small>Tarjeta</small><b>R15-DEMO-001</b></div>
+    </div>
+    <div class="qr"></div>
+    <div class="alt">Demo sin valor</div>
+  </div>
+
+  <a class="add" href="./r15-puntos-demo.pkpass">Añadir a Apple Wallet</a>
+
+  <p class="howto"><b>Desde el iPhone:</b> abre esta página en Safari, toca el botón y luego «Añadir» cuando iOS muestre la tarjeta. En Android, Google Wallet puede importar el mismo archivo.</p>
+
+  <p class="note">Demostración técnica de R15 Studios. No es una tarjeta de pago ni de fidelización real: no acumula puntos, no da derecho a recompensas y no tiene ningún valor comercial.</p>
+</main>
+<footer><a href="/">r15studios.github.io</a></footer>
+</body>
+</html>
